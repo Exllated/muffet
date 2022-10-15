@@ -29,8 +29,14 @@ def load():
     global BLACKLIST_SYMBOLS
 
     BLACKLIST_QUERY = read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_query'))
-    BLACKLIST_NETLOCS = read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_netlocs'))
     BLACKLIST_IN_URL = read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_in_url'))
+
+    blacklist_netlocs_set = set()
+    for blacklisted_netloc in read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_netlocs')):
+        blacklist_netlocs_set.add(blacklisted_netloc)
+        blacklist_netlocs_set.add('www.' + blacklisted_netloc)
+
+    BLACKLIST_NETLOCS = tuple(blacklist_netlocs_set)
 
     blacklist_symbols_path = os.path.join(CONFIG_DIR, 'blacklist_symbols')
     create_file_if_not_exist(blacklist_symbols_path)
