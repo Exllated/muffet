@@ -76,11 +76,11 @@ def get_website_data(url):
 
     parsed_html = lxml.html.fromstring(r.text)
 
+    r_url = format_url(r.url)
+
     c_url = lxml.etree.XPath('//link[@rel="canonical"]/@href')(parsed_html)
     if len(c_url) > 0:
-        c_url = c_url[0]
-
-    r_url = format_url(r.url)
+        c_url = format_url(c_url[0], r_url)
 
     links = set()
     for link in parsed_html.iterlinks():
