@@ -21,6 +21,8 @@ def run(init_url):
                 url_queue.update(wd['links'])
 
             database.write_website_data(wd)
+
+            url_queue.update_visited({wd[url_type] for url_type in database.URL_TYPES if wd.get(url_type)})
             i += 1
     except queue.Empty:
         print('Empty')
@@ -32,13 +34,28 @@ class UrlQueue:
     def __init__(self):
         self.urls = set()
         self.domain_access_dict = dict()
+        self.visited_urls = set()
         pass
 
-    def add(self, item):
-        self.urls.add(item)
+    def add_visited(self, url):
+        self.visited_urls.add(url)
+        self.urls = self.urls - self.visited_urls
+        pass
 
-    def update(self, iterable):
-        self.urls.update(iterable)
+    def update_visited(self, urls):
+        self.visited_urls.update(urls)
+        self.urls = self.urls - self.visited_urls
+        pass
+
+    def add(self, url):
+        if url not in self.visited_urls:
+            self.urls.add(url)
+        pass
+
+    def update(self, urls):
+        for url in urls:
+            self.add(url)
+        pass
 
     def get(self):
         for url in self.urls:
