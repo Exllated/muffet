@@ -50,4 +50,4 @@ def add_lines_to_file(path, new_lines):
 
 def url_to_db_path(r_url, c_url=None):
     url_split = urllib.parse.urlsplit(c_url if c_url else r_url)
-    return os.path.join(DOWNLOAD_DIR, url_split.netloc, url_split.path[1:], url_split.query).strip('/') + '.mf'
+    return os.path.join(DOWNLOAD_DIR, os.path.join(url_split.netloc, url_split.path[1:], url_split.query).strip('/')) + '.mf'
