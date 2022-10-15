@@ -1,3 +1,10 @@
+data_db/
+data_config/blacklist_in_url
+data_config/blacklist_netlocs
+data_config/blacklist_parameters
+data_config/parameters
+.idea/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
