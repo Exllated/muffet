@@ -1,32 +1,18 @@
-import multiprocessing.process
 import urllib.parse
 
 import lxml
 import lxml.html
 import lxml.html.clean
+from lxml import etree
 import requests
 
-BLACKLIST_QUERY_PARAMETERS = set()
-
-REPLACE = {
-    u'\xa0', '\n', '\t', '\r',
-    '\u202a', '\u202b', '\u202c', '\u202d', '\u202e',
-    '\u200e', '\u200f'
-}
-
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Upgrade-Insecure-Requests': '1'
-}
+from configs import BLACKLIST_QUERY, BLACKLIST_NETLOCS, BLACKLIST_IN_URL, BLACKLIST_SYMBOLS, HEADERS
 
 
 def optimise_text(text):
     s = text.casefold()
 
-    for r in REPLACE:
+    for r in BLACKLIST_SYMBOLS:
         s = s.replace(r, ' ')
 
     return ' '.join(set(s.split()))
@@ -37,7 +23,7 @@ def format_url(url, source_url=None):
 
     query = {
         kv for kv in url_split.query.split('&') if (
-                kv.split('=')[0].casefold() not in BLACKLIST_QUERY_PARAMETERS and
+                kv.split('=')[0].casefold() not in BLACKLIST_QUERY and
                 kv != '')
     }
 
@@ -45,6 +31,7 @@ def format_url(url, source_url=None):
         return urllib.parse.urlunsplit((url_split.scheme, url_split.netloc, url_split.path, '&'.join(query), ''))
     else:
         return urllib.parse.urljoin(source_url, url_split.path) + f'?{"&".join(query)}' if len(query) > 0 else ''
+    pass
 
 
 def get_website_data(url):
@@ -104,7 +91,9 @@ def get_website_data(url):
                 formatted_link != r_url and
                 formatted_link != url and
                 formatted_link != c_url and
-                    (':' not in formatted_link or formatted_link.startswith('http'))
+                urllib.parse.urlsplit(formatted_link).netloc not in BLACKLIST_NETLOCS and
+                (':' not in formatted_link or formatted_link.startswith('http')) and
+                not any(bl in formatted_link for bl in BLACKLIST_IN_URL)
             ):
                 links.add(formatted_link)
 

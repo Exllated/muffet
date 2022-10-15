@@ -1,5 +1,8 @@
-import scheduler
 
 if __name__ == "__main__":
-    #scheduler.run('https://google.com/')
+    import configs
+    configs.load()
+
+    import scheduler
+    scheduler.run('https://google.com/')
     pass

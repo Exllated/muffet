@@ -1,17 +1,16 @@
 import os.path
 import urllib.parse
+from configs import DATA_DIR, CONFIG_DIR
 
-CONFIG_PATH = 'data_config'
-DB_PATH = 'data_db'
-ERROR_LISTS_PATH = os.path.join(DB_PATH, 'error')
-DOWNLOAD_PATH = os.path.join(DB_PATH, 'download')
+ERROR_LISTS_DIR = os.path.join(DATA_DIR, 'error')
+DOWNLOAD_DIR = os.path.join(DATA_DIR, 'download')
 
 URL_TYPES = ('r_url', 's_url', 'c_url')
 
 
 def write_website_data(website_data):
     if website_data['code'] != '200':
-        add_lines_to_file(os.path.join(ERROR_LISTS_PATH, website_data['code']),
+        add_lines_to_file(os.path.join(ERROR_LISTS_DIR, website_data['code']),
                           {website_data[url_type] for url_type in URL_TYPES if website_data.get(url_type)})
         return
 
@@ -51,5 +50,4 @@ def add_lines_to_file(path, new_lines):
 
 def url_to_db_path(r_url, c_url=None):
     url_split = urllib.parse.urlsplit(c_url if c_url else r_url)
-    return os.path.join(DOWNLOAD_PATH, url_split.netloc, url_split.path[1:], url_split.query).strip(
-        '/') + '.mf'
+    return os.path.join(DOWNLOAD_DIR, url_split.netloc, url_split.path[1:], url_split.query).strip('/') + '.mf'
