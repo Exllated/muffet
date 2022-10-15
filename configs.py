@@ -12,7 +12,7 @@ CONFIG_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data_con
 DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data_db')
 
 BLACKLIST_QUERY = None
-BLACKLIST_NETLOCS = None
+BLACKLIST_DOMAINS = None
 BLACKLIST_IN_URL = None
 
 BLACKLIST_SYMBOLS = (
@@ -24,19 +24,19 @@ BLACKLIST_SYMBOLS = (
 
 def load():
     global BLACKLIST_QUERY
-    global BLACKLIST_NETLOCS
+    global BLACKLIST_DOMAINS
     global BLACKLIST_IN_URL
     global BLACKLIST_SYMBOLS
 
     BLACKLIST_QUERY = read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_query'))
     BLACKLIST_IN_URL = read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_in_url'))
 
-    blacklist_netlocs_set = set()
-    for blacklisted_netloc in read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_netlocs')):
-        blacklist_netlocs_set.add(blacklisted_netloc)
-        blacklist_netlocs_set.add('www.' + blacklisted_netloc)
+    blacklist_domains_set = set()
+    for blacklisted_netloc in read_file_lines_as_tuple(os.path.join(CONFIG_DIR, 'blacklist_domains')):
+        blacklist_domains_set.add(blacklisted_netloc)
+        blacklist_domains_set.add('www.' + blacklisted_netloc)
 
-    BLACKLIST_NETLOCS = tuple(blacklist_netlocs_set)
+    BLACKLIST_DOMAINS = tuple(blacklist_domains_set)
 
     blacklist_symbols_path = os.path.join(CONFIG_DIR, 'blacklist_symbols')
     create_file_if_not_exist(blacklist_symbols_path)
@@ -61,6 +61,7 @@ def read_file_lines_as_tuple(path):
     create_file_if_not_exist(path)
     with open(path, 'r') as f:
         lines = set(f.read().split('\n'))  # conversion to set for deduplication
-        if len(lines) == 1 and list(lines)[0] == '':
-            return tuple()  # return empty tuple so other functions dependent on 'for _ in _' won't return ''
+        for line in set(lines):
+            if line == '':
+                lines.remove(line)
         return tuple(lines)

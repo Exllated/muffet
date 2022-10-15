@@ -6,7 +6,7 @@ import lxml.html.clean
 from lxml import etree
 import requests
 
-from configs import BLACKLIST_QUERY, BLACKLIST_NETLOCS, BLACKLIST_IN_URL, BLACKLIST_SYMBOLS, HEADERS
+from configs import BLACKLIST_QUERY, BLACKLIST_DOMAINS, BLACKLIST_IN_URL, BLACKLIST_SYMBOLS, HEADERS
 
 
 def optimise_text(text):
@@ -86,14 +86,15 @@ def get_website_data(url):
     for link in parsed_html.iterlinks():
         if link[1] == 'href':
             formatted_link = format_url(link[2], r_url)
+            netloc = urllib.parse.urlsplit(formatted_link).netloc
             if (
                 formatted_link != '' and
                 formatted_link != r_url and
                 formatted_link != url and
                 formatted_link != c_url and
-                urllib.parse.urlsplit(formatted_link).netloc not in BLACKLIST_NETLOCS and
+                not any(netloc.endswith(bl_nl) for bl_nl in BLACKLIST_DOMAINS) and
                 (':' not in formatted_link or formatted_link.startswith('http')) and
-                not any(bl in formatted_link for bl in BLACKLIST_IN_URL)
+                not any(bl_in in formatted_link for bl_in in BLACKLIST_IN_URL)
             ):
                 links.add(formatted_link)
 
